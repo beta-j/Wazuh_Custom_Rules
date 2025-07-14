@@ -14,7 +14,7 @@
     <description>Multiple Soft deletes detected from the same user</description>
   </rule>
   <!-- this was an attempt to detect when a user selects multiple emails and delets them in a single "softdelete" action, but it's not working yet
-  <rule id="100007" level="9"> <!-- generate an alert is a user deletes more than 5 emails at once from the deleted items folder -->
+  <rule id="100007" level="9">
     <if_sid>100005</if_sid>
     <field name="office365.AffectedItems[5]">exists</field>
     <description>User deleted 6 or more emails in a single action</description>
