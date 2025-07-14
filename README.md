@@ -1,2 +1,2 @@
 # Wazuh_Custom_Rules
-Custom xml rules for Wazuh
+A repository to catalogue my custom rules for Wazuh to provide valuable alerts for SOC analysts.
