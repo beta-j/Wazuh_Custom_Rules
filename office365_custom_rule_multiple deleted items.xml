@@ -13,6 +13,7 @@
     <same_field>office365.UserId</same_field>
     <description>Multiple Soft deletes detected from the same user</description>
   </rule>
+  
   <!-- this was an attempt to detect when a user selects multiple emails and delets them in a single "softdelete" action, but it's not working yet
   <rule id="100007" level="9">
     <if_sid>100005</if_sid>
@@ -20,6 +21,7 @@
     <description>User deleted 6 or more emails in a single action</description>
   </rule>
   -->
+  
   <rule id="100008" level="11" frequency="20" timeframe="1200">  <!-- generate a higher-level alert if more than 20 softdelete events are recorded in 20 minutes-->
     <if_matched_sid>100005</if_matched_sid>
     <same_field>office365.UserId</same_field>
