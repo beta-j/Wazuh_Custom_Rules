@@ -1,0 +1,18 @@
+<!-- Local rules -->
+
+<group name="office365,">
+    <!-- the following two rules are to detect multiple logins by the same user from different IPs -->
+    <rule id="100010" level="3">
+      <if_sid>91545</if_sid>
+      <field name="office365.Operation">UserLoggedIn</field>
+      <description>Successful login detected</description>
+    </rule>
+    <rule id="100011" level="12" frequency="4" timeframe="3600">  <!-- four or more unique IPs for the same user in 1 hour -->
+    <if_matched_sid>100010</if_matched_sid>
+    <same_field>office365.UserId</same_field>
+    <different_field>office365.ClientIP</different_field>
+    <description>Multiple successful logins from different IPs for the same user</description>
+    <options>alert_by_email</options>
+    <extra_data>office365.ClientIP</extra_data>
+    </rule>
+</group>
