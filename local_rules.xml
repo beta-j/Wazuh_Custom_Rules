@@ -1,1 +1,53 @@
+<!-- Local rules -->
+<!-- Copyright (C) 2015, Wazuh Inc. -->
 
+<group name="office365,">
+
+    <rule id="91556" level="11" overwrite="yes">
+        <if_sid>91532</if_sid>
+        <field name="office365.RecordType" type="osregex">^28$</field>
+        <description>Office 365: Phishing and malware events from Exchange Online Protection and Microsoft Defender for Office 365.</description>
+        <options>no_full_log</options>
+        <group>ThreatIntelligence,hipaa_164.312.b,pci_dss_5.3,pci_dss_6.1,pci_dss_10.6.1</group>
+    </rule>
+
+
+    <!-- The following two rules are used to detect when a user deletes a large number of emails in a short time span -->
+    <rule id="100005" level="3">  <!-- match on user deletes an email from the deleted items folder - i.e. soft delete -->
+      <if_sid>91535</if_sid>
+      <field name="office365.Operation">SoftDelete</field>
+      <description>Soft delete detected (direct match)</description>
+    </rule>
+    <rule id="100006" level="8" frequency="5" timeframe="1200">  <!-- generate an alert if more than 5 softdelete events are recorded in 20 minutes-->
+      <if_matched_sid>100005</if_matched_sid>
+      <same_field>office365.UserId</same_field>
+      <description>Several Soft deletes detected from the same user</description>
+    </rule>
+    <rule id="100007" level="9"> <!-- generate an alert is a user deletes more than 5 emails at once from the deleted items folder -->
+      <if_sid>100005</if_sid>
+      <field name="office365.AffectedItems[5]">exists</field>
+      <description>User deleted 6 or more emails in a single action</description>
+    </rule>
+    <rule id="100008" level="12" frequency="20" timeframe="1200">  <!-- generate an alert if more than 20 softdelete events are recorded in 20 minutes-->
+      <if_matched_sid>100005</if_matched_sid>
+      <same_field>office365.UserId</same_field>
+      <description>Very Large Amount of Soft deletes detected from the same user</description>
+      <options>alert_by_email</options>
+    </rule>    
+
+  
+    <!-- the following two rules are to detect multiple logins by the same user from different IPs -->
+    <rule id="100010" level="3">
+      <if_sid>91545</if_sid>
+      <field name="office365.Operation">UserLoggedIn</field>
+      <description>Successful login detected</description>
+    </rule>
+    <rule id="100011" level="12" frequency="4" timeframe="3600">  <!-- four or more unique IPs for the same user in 1 hour -->
+    <if_matched_sid>100010</if_matched_sid>
+    <same_field>office365.UserId</same_field>
+    <different_field>office365.ClientIP</different_field>
+    <description>Multiple successful logins from different IPs for the same user</description>
+    <options>alert_by_email</options>
+    <extra_data>office365.ClientIP</extra_data>
+    </rule>
+</group>
