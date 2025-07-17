@@ -1,3 +1,4 @@
+```yaml
 {
   $schema: https://vega.github.io/schema/vega/v3.0.json
   data: [
@@ -418,3 +419,4 @@
     }
   ]
 }
+```
