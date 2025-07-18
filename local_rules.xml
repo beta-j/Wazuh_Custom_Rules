@@ -1,5 +1,21 @@
 <!-- Local rules -->
+
+<!-- Modify it at your will. -->
 <!-- Copyright (C) 2015, Wazuh Inc. -->
+
+<!-- Example -->
+<group name="local,syslog,sshd,">
+  <!--
+  Dec 10 01:02:02 host sshd[1234]: Failed none for root from 1.1.1.1 port 1066 ssh2
+  -->
+  <rule id="100001" level="5">
+    <if_sid>5716</if_sid>
+    <srcip>1.1.1.1</srcip>
+    <description>sshd: authentication failed from IP 1.1.1.1.</description>
+    <group>authentication_failed,pci_dss_10.2.4,pci_dss_10.2.5,</group>
+  </rule>
+</group>
+
 
 <group name="office365,">
 
@@ -13,12 +29,12 @@
 
 
     <!-- The following two rules are used to detect when a user deletes a large number of emails in a short time span -->
-    <rule id="100005" level="3">  <!-- match on user deletes an email from the deleted items folder - i.e. soft delete -->
+    <rule id="100005" level="3"> <!-- match on user deletes an email from the deleted items folder - i.e. soft delete -->
       <if_sid>91535</if_sid>
       <field name="office365.Operation">SoftDelete</field>
       <description>Soft delete detected (direct match)</description>
     </rule>
-    <rule id="100006" level="8" frequency="5" timeframe="1200">  <!-- generate an alert if more than 5 softdelete events are recorded in 20 minutes-->
+    <rule id="100006" level="8" frequency="10" timeframe="1200">  <!-- generate an alert if more than 5 softdelete events are recorded in 20 minutes-->
       <if_matched_sid>100005</if_matched_sid>
       <same_field>office365.UserId</same_field>
       <description>Several Soft deletes detected from the same user</description>
@@ -28,7 +44,7 @@
       <field name="office365.AffectedItems[5]">exists</field>
       <description>User deleted 6 or more emails in a single action</description>
     </rule>
-    <rule id="100008" level="12" frequency="20" timeframe="1200">  <!-- generate an alert if more than 20 softdelete events are recorded in 20 minutes-->
+    <rule id="100008" level="10" frequency="30" timeframe="1200">  <!-- generate an alert if more than 20 softdelete events are recorded in 20 minutes-->
       <if_matched_sid>100005</if_matched_sid>
       <same_field>office365.UserId</same_field>
       <description>Very Large Amount of Soft deletes detected from the same user</description>
@@ -43,11 +59,34 @@
       <description>Successful login detected</description>
     </rule>
     <rule id="100011" level="12" frequency="4" timeframe="3600">  <!-- four or more unique IPs for the same user in 1 hour -->
-    <if_matched_sid>100010</if_matched_sid>
-    <same_field>office365.UserId</same_field>
-    <different_field>office365.ClientIP</different_field>
-    <description>Multiple successful logins from different IPs for the same user</description>
-    <options>alert_by_email</options>
-    <extra_data>office365.ClientIP</extra_data>
+      <if_matched_sid>100010</if_matched_sid>
+      <same_field>office365.UserId</same_field>
+      <different_field>office365.ClientIP</different_field>
+      <description>Multiple successful logins from different IPs for the same user</description>
+      <extra_data>office365.ClientIP</extra_data>
+      <options>alert_by_email</options>
+      <group>ThreatIntelligence</group>
+      <mitre>
+        <id>T1078</id>
+      </mitre>
     </rule>
+    
+    <!-- the following rule alerts on multiple successful logins by the same user -->
+    <rule id="100012" level="7" frequency="5" timeframe="1800"> <!-- five or more succesful logins in 30mins -->
+      <if_matched_sid>100010</if_matched_sid>
+      <same_field>office365.UserId</same_field>
+      <description>Multiple succesful logins in short time frame for the same user</description>    
+      <extra_data>office365.UserId</extra_data>
+      <options>alert_by_email</options>
+    </rule>
+</group>
+
+<group name="IDS_Suricata">
+  <rule id="100020" level="12" frequency="50" timeframe="30">
+    <if_matched_sid>86601</if_matched_sid>
+    <same_field>dest_ip</same_field>
+    <description>Possible TCP SYN Flood Attack</description>
+    <options>alert_by_email</options>
+    <group>suricata</group>
+  </rule>
 </group>
