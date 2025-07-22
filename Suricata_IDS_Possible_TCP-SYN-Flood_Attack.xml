@@ -1,9 +1,0 @@
-<group name="IDS_Suricata">
-  <rule id="100020" level="12" frequency="50" timeframe="30">  <!-- if 50 alerts are matched in 30 seconds -->
-    <if_matched_sid>86601</if_matched_sid>                     <!-- rule.id 86601 is used in 0475-suricata_rules.xml to indicate a MISC attack type -->
-    <same_field>dest_ip</same_field>                           <!-- trigger only if multiple Misc Suricata Alerts are triggered towards the same destination IP -->
-    <description>Possible TCP SYN Flood Attack</description>
-    <options>alert_by_email</options>                          <!-- send alert by email - delete this line if no email notification channel is configured in your Wazuh instance -->
-    <group>suricata</group>
-  </rule>
-</group>
